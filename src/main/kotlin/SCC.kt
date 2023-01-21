@@ -11,23 +11,21 @@ import java.util.*
 5 6
 6 7
 6 4
-1
 */
 private var graphs: LinkedList<Graph> = LinkedList()
 private var transposeGraphs: LinkedList<Graph> = LinkedList()
 private var time = 0
 private val stack = Stack<Int>()
 
-private fun dfs(graphs: LinkedList<Graph>, source: Int) {
+private fun dfs(graphs: LinkedList<Graph>, source: Int, isScc: Boolean = false) {
     ++time
     val graph = graphs.find { it.v == source }
     if (graph != null) {
+        if (isScc) stack.push(graph.v)
         graph.startTime = time
         for (edge in graph.edges) {
             if ((graphs.find { it.v == edge })?.startTime == null) {
-                dfs(graphs, edge)
-            } else {
-                stack.push(graph.v)
+                dfs(graphs, edge,isScc)
             }
         }
         ++time
@@ -73,9 +71,6 @@ fun main() {
             dfs(graphs, graph.v)
         }
     }
-    while (!stack.isEmpty()) {
-        print("${stack.pop()}, ")
-    }
     println()
     val temp = mutableListOf<Pair<Int, Int?>>()
     for (graph in graphs) {
@@ -86,15 +81,12 @@ fun main() {
     for (pair in temp) {
         val graph = transposeGraphs.find { it.v == pair.first }
         if (graph?.startTime == null) {
-            dfs(transposeGraphs, pair.first)
+            dfs(transposeGraphs, pair.first, true)
+            print("SCC are: ")
+            while (stack.isNotEmpty()) {
+                print(" ${stack.pop()},")
+            }
+            println()
         }
-    }
-
-    for (graph in graphs) {
-        println("Graph: ${graph.v} => start: ${graph.startTime}, finish: ${graph.endTime}")
-    }
-    println()
-    for (graph in transposeGraphs) {
-        println("Graph: ${graph.v} => start: ${graph.startTime}, finish: ${graph.endTime}")
     }
 }
